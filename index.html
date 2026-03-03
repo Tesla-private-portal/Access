@@ -1,0 +1,1101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tesla Private Owner Portal</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <style>
+        :root {
+            --red: #e31937;
+            --red-light: #ff3a54;
+            --red-glow: rgba(227, 25, 55, 0.45);
+            --red-deep: #b8102a;
+            --bg: #06060a;
+            --bg-alt: #0c0c14;
+            --card: rgba(14, 14, 22, 0.78);
+            --card-border: rgba(255, 255, 255, 0.06);
+            --text: #f0f0f4;
+            --text-dim: #7a7a90;
+            --green: #00c853;
+            --gold: #d4af37;
+            --gold-glow: rgba(212, 175, 55, 0.4);
+            --trans: 0.45s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        html.light {
+            --bg: #f0f0f5;
+            --bg-alt: #e4e4ee;
+            --card: rgba(255, 255, 255, 0.85);
+            --card-border: rgba(0, 0, 0, 0.07);
+            --text: #111118;
+            --text-dim: #60607a;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg); color: var(--text);
+            transition: background var(--trans), color var(--trans);
+            overflow-x: hidden; min-height: 100vh;
+        }
+
+        /* ========== GLASS ========== */
+        .glass {
+            background: var(--card);
+            backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+            border: 1px solid var(--card-border);
+            border-radius: 14px;
+        }
+
+        /* ========== BUTTONS ========== */
+        .btn-primary {
+            display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+            background: var(--red); color: #fff; border: none;
+            padding: 13px 28px; border-radius: 40px;
+            font-family: 'Inter', sans-serif; font-weight: 600; font-size: 0.82rem;
+            letter-spacing: 1.5px; text-transform: uppercase;
+            cursor: pointer; transition: var(--trans); position: relative; overflow: hidden;
+        }
+        .btn-primary:hover { filter: brightness(1.15); transform: translateY(-1px); box-shadow: 0 6px 28px var(--red-glow); }
+        .btn-primary:active { transform: translateY(0); }
+        .btn-primary:disabled { background: #333; cursor: not-allowed; transform: none; box-shadow: none; filter: none; }
+        .btn-ghost {
+            background: transparent; color: var(--text-dim); border: 1px solid var(--card-border);
+            padding: 10px 20px; border-radius: 40px; font-family: 'Inter', sans-serif;
+            font-size: 0.82rem; cursor: pointer; transition: var(--trans);
+        }
+        .btn-ghost:hover { border-color: var(--text-dim); color: var(--text); }
+
+        /* ========== ANIMATIONS ========== */
+        @keyframes shake { 0%,100%{transform:translateX(0)} 20%{transform:translateX(-12px)} 40%{transform:translateX(10px)} 60%{transform:translateX(-8px)} 80%{transform:translateX(6px)} }
+        .shake { animation: shake 0.4s ease-in-out; }
+        @keyframes fadeUp { from{opacity:0;transform:translateY(24px)} to{opacity:1;transform:translateY(0)} }
+        @keyframes shimmer { 0%{background-position:-250% -250%} 100%{background-position:250% 250%} }
+        @keyframes ticker-scroll { 0%{transform:translateX(0)} 100%{transform:translateX(-50%)} }
+        @keyframes float-in { from{opacity:0;transform:scale(0.92) translateY(20px)} to{opacity:1;transform:scale(1) translateY(0)} }
+        @keyframes pulse-red { 0%,100%{box-shadow:0 0 0 0 var(--red-glow)} 50%{box-shadow:0 0 0 14px transparent} }
+        @keyframes neon-spin {
+            0% { filter: hue-rotate(0deg) drop-shadow(0 0 6px var(--red)); }
+            50% { filter: hue-rotate(10deg) drop-shadow(0 0 14px var(--red-light)); }
+            100% { filter: hue-rotate(0deg) drop-shadow(0 0 6px var(--red)); }
+        }
+        @keyframes border-glow {
+            0%,100% { border-color: var(--red); box-shadow: 0 0 8px var(--red-glow), inset 0 0 8px rgba(227,25,55,0.05); }
+            25% { border-color: var(--red-light); box-shadow: 0 0 18px var(--red-glow), 0 0 40px rgba(227,25,55,0.15), inset 0 0 12px rgba(227,25,55,0.08); }
+            50% { border-color: #ff5070; box-shadow: 0 0 24px rgba(255,80,112,0.4), 0 0 60px rgba(227,25,55,0.12), inset 0 0 16px rgba(227,25,55,0.06); }
+            75% { border-color: var(--red-light); box-shadow: 0 0 18px var(--red-glow), 0 0 40px rgba(227,25,55,0.15), inset 0 0 12px rgba(227,25,55,0.08); }
+        }
+        @keyframes logo-pulse {
+            0%,100% { text-shadow: 0 0 10px var(--red-glow), 0 0 30px rgba(227,25,55,0.2); transform: scale(1); }
+            50% { text-shadow: 0 0 20px var(--red-glow), 0 0 50px rgba(227,25,55,0.3), 0 0 80px rgba(227,25,55,0.15); transform: scale(1.05); }
+        }
+        @keyframes btn-glow-pulse {
+            0%,100% { box-shadow: 0 0 12px var(--red-glow), 0 4px 20px rgba(227,25,55,0.3); }
+            50% { box-shadow: 0 0 24px var(--red-glow), 0 4px 36px rgba(227,25,55,0.5), 0 0 60px rgba(227,25,55,0.15); }
+        }
+        @keyframes scanline {
+            0% { top: -10%; }
+            100% { top: 110%; }
+        }
+        @keyframes hex-float {
+            0%,100% { transform: translateY(0) rotate(0deg); opacity: 0.08; }
+            50% { transform: translateY(-30px) rotate(30deg); opacity: 0.15; }
+        }
+        @keyframes letter-reveal {
+            0% { opacity: 0; transform: translateY(8px); filter: blur(4px); }
+            100% { opacity: 1; transform: translateY(0); filter: blur(0); }
+        }
+        @keyframes electric-glow {
+            0%,100% { opacity: 0.3; }
+            50% { opacity: 0.8; }
+        }
+
+        /* ========== LOGIN SCREEN ========== */
+        #login-screen {
+            position: fixed; inset: 0; z-index: 9000;
+            display: flex; align-items: center; justify-content: center;
+            background: var(--bg); overflow: hidden;
+        }
+        #login-canvas { position: absolute; inset: 0; z-index: 0; }
+        .login-grid-overlay {
+            position: absolute; inset: 0; z-index: 1;
+            background-image:
+                linear-gradient(rgba(227,25,55,0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(227,25,55,0.03) 1px, transparent 1px);
+            background-size: 60px 60px;
+            pointer-events: none;
+        }
+        .login-radial {
+            position: absolute; z-index: 1;
+            width: 600px; height: 600px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(227,25,55,0.08) 0%, transparent 70%);
+            top: 50%; left: 50%; transform: translate(-50%, -50%);
+            pointer-events: none;
+            animation: electric-glow 4s ease-in-out infinite;
+        }
+        .login-scanline {
+            position: absolute; z-index: 2; left: 0; right: 0;
+            height: 2px; background: linear-gradient(90deg, transparent, rgba(227,25,55,0.15), transparent);
+            animation: scanline 6s linear infinite;
+            pointer-events: none;
+        }
+        .hex-shape {
+            position: absolute; z-index: 1; pointer-events: none;
+            width: 40px; height: 40px;
+            border: 1px solid rgba(227,25,55,0.1);
+            border-radius: 4px;
+        }
+        .login-card {
+            position: relative; z-index: 10;
+            width: 100%; max-width: 420px;
+            padding: 50px 40px; text-align: center;
+            border: 1px solid rgba(227,25,55,0.2);
+            animation: float-in 0.9s ease-out;
+        }
+        .login-card::before {
+            content: ''; position: absolute; inset: -1px;
+            border-radius: 14px; z-index: -1;
+            background: linear-gradient(135deg, var(--red), transparent 40%, transparent 60%, var(--red-light));
+            opacity: 0.3; filter: blur(1px);
+        }
+        .login-logo {
+            font-size: 3.6rem; color: var(--red);
+            margin-bottom: 12px; display: inline-block;
+            animation: logo-pulse 3s ease-in-out infinite;
+        }
+        .login-title {
+            font-size: 0.92rem; font-weight: 300; letter-spacing: 8px;
+            color: var(--text-dim); margin-bottom: 8px;
+        }
+        .login-subtitle {
+            font-size: 0.68rem; color: rgba(227,25,55,0.5);
+            letter-spacing: 3px; margin-bottom: 32px;
+        }
+        .code-input {
+            width: 100%; padding: 16px 20px;
+            background: rgba(255,255,255,0.03); border: 1px solid rgba(227,25,55,0.15);
+            border-radius: 10px; color: var(--text);
+            font-family: 'Inter', sans-serif; font-size: 16px;
+            text-align: center; letter-spacing: 6px;
+            transition: border-color 0.3s, box-shadow 0.3s;
+        }
+        .code-input:focus {
+            outline: none; border-color: var(--red);
+            box-shadow: 0 0 16px rgba(227,25,55,0.2), inset 0 0 8px rgba(227,25,55,0.05);
+        }
+        html.light .code-input { background: rgba(0,0,0,0.03); border-color: rgba(0,0,0,0.1); }
+        html.light .code-input:focus { border-color: var(--red); }
+        .login-btn-wrap { margin-top: 20px; }
+        .login-btn-wrap .btn-primary {
+            width: 100%;
+            animation: btn-glow-pulse 3s ease-in-out infinite;
+        }
+        .login-btn-wrap .btn-primary::after {
+            content: ''; position: absolute; inset: 0;
+            border-radius: 40px;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.15), transparent);
+            transform: translateX(-100%);
+            transition: transform 0.6s;
+        }
+        .login-btn-wrap .btn-primary:hover::after { transform: translateX(100%); }
+        .login-error {
+            color: var(--red); font-size: 0.76rem; font-weight: 500;
+            margin-top: 14px; display: none; letter-spacing: 1px;
+        }
+        .login-footer {
+            margin-top: 28px; font-size: 0.62rem; color: rgba(255,255,255,0.15);
+            letter-spacing: 2px;
+        }
+
+        /* ========== MODALS ========== */
+        .modal-overlay {
+            position: fixed; inset: 0; z-index: 9500;
+            background: rgba(0,0,0,0.88);
+            display: none; align-items: center; justify-content: center; padding: 20px;
+        }
+        .modal-overlay.visible { display: flex; }
+        .modal-box {
+            width: 100%; max-width: 560px; padding: 36px;
+            border-top: 3px solid var(--red);
+            animation: float-in 0.4s ease-out;
+        }
+        .modal-title { font-size: 1.05rem; font-weight: 600; letter-spacing: 3px; margin-bottom: 20px; }
+        .terms-scroll {
+            max-height: 200px; overflow-y: auto;
+            background: rgba(0,0,0,0.2); border-radius: 8px;
+            padding: 18px; margin-bottom: 20px;
+            font-size: 0.82rem; line-height: 1.7; color: var(--text-dim);
+        }
+        html.light .terms-scroll { background: rgba(0,0,0,0.04); }
+        .terms-scroll::-webkit-scrollbar { width: 4px; }
+        .terms-scroll::-webkit-scrollbar-track { background: transparent; }
+        .terms-scroll::-webkit-scrollbar-thumb { background: var(--red); border-radius: 4px; }
+        .checkbox-row {
+            display: flex; align-items: center; gap: 12px;
+            font-size: 0.85rem; cursor: pointer; margin-bottom: 20px;
+        }
+        .checkbox-row input[type="checkbox"] { width: 18px; height: 18px; accent-color: var(--red); }
+
+        /* ========== HEADER ========== */
+        #portal-header {
+            display: none; padding: 18px 24px;
+            max-width: 1200px; margin: 0 auto;
+            justify-content: space-between; align-items: center;
+        }
+        .header-left { display: flex; align-items: center; gap: 14px; }
+        .avatar {
+            width: 52px; height: 52px; border-radius: 50%;
+            border: 2px solid var(--red); object-fit: cover;
+            box-shadow: 0 0 12px var(--red-glow);
+        }
+        .header-name { font-size: 0.95rem; font-weight: 700; letter-spacing: 3px; }
+        .header-loc { font-size: 0.72rem; color: var(--text-dim); margin-top: 2px; }
+        .header-loc i { color: var(--red); margin-right: 4px; }
+        .header-actions { display: flex; align-items: center; gap: 12px; }
+        .icon-btn {
+            width: 40px; height: 40px; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            cursor: pointer; border: 1px solid var(--card-border);
+            background: var(--card); color: var(--text); font-size: 0.9rem;
+            transition: var(--trans);
+        }
+        .icon-btn:hover { border-color: var(--red); color: var(--red); }
+
+        /* ========== TICKER ========== */
+        #ticker-bar {
+            display: none; background: #000; border: 1px solid var(--red);
+            border-radius: 50px; margin: 8px 24px 20px;
+            overflow: hidden; white-space: nowrap;
+            max-width: 1152px; margin-left: auto; margin-right: auto;
+        }
+        html.light #ticker-bar { background: #111; }
+        .ticker-track { display: inline-flex; animation: ticker-scroll 22s linear infinite; padding: 10px 0; }
+        .ticker-item {
+            color: var(--red); font-size: 0.78rem; font-weight: 600;
+            letter-spacing: 1px; padding: 0 40px;
+            display: inline-flex; align-items: center; gap: 6px;
+        }
+        .ticker-item .up { color: var(--green); }
+
+        /* ========== MAIN ========== */
+        #main-portal { display: none; max-width: 1200px; margin: 0 auto; padding: 0 24px 80px; }
+
+        /* Summary */
+        .summary-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px; margin-bottom: 20px; }
+        .summary-cell { padding: 16px 12px; text-align: center; }
+        .cell-label { font-size: 0.6rem; font-weight: 600; letter-spacing: 2px; color: var(--text-dim); text-transform: uppercase; margin-bottom: 6px; }
+        .cell-value { font-size: 0.8rem; font-weight: 600; }
+        .badge { display: inline-block; padding: 4px 14px; border-radius: 20px; font-size: 0.64rem; font-weight: 800; letter-spacing: 0.5px; }
+        .badge-inactive { background: rgba(227,25,55,0.15); color: var(--red); }
+        .badge-active { background: rgba(0,200,83,0.15); color: var(--green); }
+
+        /* Banners */
+        .banner { display: flex; justify-content: space-between; align-items: center; padding: 20px 24px; margin-bottom: 20px; border-left: 4px solid var(--red); }
+        .banner-title { font-size: 0.85rem; font-weight: 700; color: var(--red); letter-spacing: 1px; }
+        .banner-text { font-size: 0.78rem; color: var(--text-dim); margin-top: 4px; }
+        #success-banner { display: none; padding: 20px 24px; margin-bottom: 20px; border-left: 4px solid var(--green); }
+        .success-row { display: flex; align-items: center; gap: 14px; }
+        .success-row i { font-size: 1.6rem; color: var(--green); }
+        .success-label { font-weight: 700; color: var(--green); letter-spacing: 1px; font-size: 0.85rem; }
+        .success-detail { font-size: 0.78rem; color: var(--text-dim); margin-top: 2px; }
+
+        /* ========== CREDENTIAL CARD — VERTICAL ========== */
+        .cred-card-wrapper {
+            display: flex; justify-content: center; margin-bottom: 30px;
+        }
+        .cred-card {
+            position: relative; overflow: hidden;
+            width: 100%; max-width: 380px;
+            padding: 0;
+            border: 2px solid var(--red);
+            border-radius: 18px;
+            animation: border-glow 3s ease-in-out infinite;
+        }
+        .cred-card-inner { padding: 32px 28px; position: relative; z-index: 1; }
+        .cred-photo-section { text-align: center; margin-bottom: 22px; }
+        .cred-photo {
+            width: 90px; height: 90px; border-radius: 50%;
+            border: 3px solid var(--red); object-fit: cover;
+            box-shadow: 0 0 20px var(--red-glow);
+        }
+        .cred-heading {
+            text-align: center;
+            font-size: 0.88rem; font-weight: 700; letter-spacing: 3px;
+            margin-bottom: 20px; color: var(--red);
+        }
+        .cred-divider {
+            height: 1px; background: linear-gradient(90deg, transparent, var(--red), transparent);
+            margin: 18px 0; opacity: 0.3;
+        }
+        .cred-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+        .cred-field-label { font-size: 0.56rem; font-weight: 600; letter-spacing: 2px; color: var(--text-dim); text-transform: uppercase; }
+        .cred-field-value { font-size: 0.78rem; font-weight: 600; margin-top: 2px; }
+        .cred-field-wide { grid-column: 1 / -1; }
+        .cred-bottom { text-align: center; margin-top: 22px; }
+        #qrcode-container { display: inline-block; margin-bottom: 12px; }
+        #qrcode-container canvas, #qrcode-container img { border-radius: 4px; }
+        .seal-box { text-align: center; }
+        .seal-icon { font-size: 2rem; margin-bottom: 4px; }
+        .seal-label { font-size: 0.58rem; font-weight: 800; letter-spacing: 2px; }
+        .seal-pending { color: #555; }
+        .seal-verified { color: var(--gold); display: none; }
+        .hologram-overlay {
+            position: absolute; inset: 0; pointer-events: none;
+            background: linear-gradient(135deg, transparent 0%, transparent 38%, rgba(255,255,255,0.08) 44%, rgba(255,255,255,0.16) 50%, rgba(255,255,255,0.08) 56%, transparent 62%, transparent 100%);
+            background-size: 300% 300%; opacity: 0; transition: opacity 0.8s; z-index: 2;
+        }
+        .hologram-active { opacity: 0.55; animation: shimmer 2.8s linear infinite; }
+
+        /* Neon corner accents */
+        .cred-card::after {
+            content: ''; position: absolute; inset: 4px;
+            border-radius: 14px; border: 1px solid rgba(227,25,55,0.08);
+            pointer-events: none; z-index: 0;
+        }
+
+        /* ========== GRIDS ========== */
+        .grid-3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 16px; margin-bottom: 28px; }
+        .stock-card { display: flex; align-items: center; gap: 16px; padding: 22px; }
+        .stock-icon { width: 46px; height: 46px; border-radius: 12px; display: flex; align-items: center; justify-content: center; background: rgba(227,25,55,0.1); color: var(--red); font-size: 1.2rem; }
+        .stock-label { font-size: 0.6rem; color: var(--text-dim); letter-spacing: 2px; font-weight: 600; }
+        .stock-value { font-size: 1.05rem; font-weight: 700; margin-top: 2px; }
+        .stock-change { color: var(--green); font-size: 0.82rem; font-weight: 600; }
+        .section-title { font-size: 0.8rem; font-weight: 300; letter-spacing: 4px; margin: 32px 0 16px; color: var(--text-dim); }
+        .doc-card { display: flex; justify-content: space-between; align-items: center; padding: 18px 22px; cursor: pointer; transition: var(--trans); }
+        .doc-card:hover { border-color: var(--red); }
+        .doc-left { display: flex; align-items: center; gap: 14px; }
+        .doc-icon { color: var(--red); font-size: 1.3rem; }
+        .doc-name { font-size: 0.8rem; font-weight: 500; }
+        .doc-dl { color: var(--text-dim); font-size: 0.9rem; transition: color 0.3s; }
+        .doc-card:hover .doc-dl { color: var(--red); }
+
+        /* ========== 3D ASSISTANT ========== */
+        #assistant-orb {
+            position: fixed; bottom: 24px; right: 24px;
+            width: 80px; height: 80px; z-index: 8000;
+            cursor: pointer; display: none;
+        }
+        #assistant-orb canvas { border-radius: 50%; }
+        .orb-tooltip {
+            position: absolute; bottom: 88px; right: 0;
+            background: var(--red); color: #fff;
+            padding: 6px 14px; border-radius: 8px;
+            font-size: 0.72rem; font-weight: 600; white-space: nowrap;
+            opacity: 0; transition: opacity 0.3s; pointer-events: none;
+        }
+        #assistant-orb:hover .orb-tooltip { opacity: 1; }
+
+        /* ========== ASSISTANT CHAT PANEL ========== */
+        #chat-panel {
+            position: fixed; bottom: 114px; right: 24px;
+            width: 360px; max-height: 480px;
+            border-radius: 18px; z-index: 8500;
+            display: none; flex-direction: column;
+            border: 1px solid rgba(227,25,55,0.2);
+            box-shadow: 0 12px 48px rgba(0,0,0,0.5);
+            overflow: hidden;
+        }
+        #chat-panel.open { display: flex; animation: float-in 0.3s ease-out; }
+        .chat-header {
+            padding: 16px 20px; display: flex; justify-content: space-between; align-items: center;
+            border-bottom: 1px solid var(--card-border);
+            background: rgba(227,25,55,0.05);
+        }
+        .chat-header-title { font-size: 0.78rem; font-weight: 700; letter-spacing: 2px; color: var(--red); }
+        .chat-close {
+            width: 28px; height: 28px; border-radius: 50%; border: none;
+            background: rgba(255,255,255,0.05); color: var(--text-dim);
+            cursor: pointer; font-size: 0.8rem; display: flex; align-items: center; justify-content: center;
+            transition: var(--trans);
+        }
+        .chat-close:hover { color: var(--red); background: rgba(227,25,55,0.1); }
+        .chat-messages {
+            flex: 1; overflow-y: auto; padding: 16px;
+            min-height: 200px; max-height: 320px;
+            display: flex; flex-direction: column; gap: 10px;
+        }
+        .chat-messages::-webkit-scrollbar { width: 3px; }
+        .chat-messages::-webkit-scrollbar-thumb { background: var(--red); border-radius: 3px; }
+        .chat-msg {
+            max-width: 85%; padding: 10px 14px;
+            border-radius: 12px; font-size: 0.8rem; line-height: 1.5;
+            word-wrap: break-word;
+        }
+        .chat-msg.user {
+            align-self: flex-end; background: var(--red); color: #fff;
+            border-bottom-right-radius: 4px;
+        }
+        .chat-msg.bot {
+            align-self: flex-start; background: rgba(255,255,255,0.06); color: var(--text);
+            border-bottom-left-radius: 4px;
+        }
+        html.light .chat-msg.bot { background: rgba(0,0,0,0.05); }
+        .chat-msg.bot.typing { color: var(--text-dim); font-style: italic; }
+        .chat-input-row {
+            display: flex; gap: 8px; padding: 12px 16px;
+            border-top: 1px solid var(--card-border);
+        }
+        #chat-input {
+            flex: 1; padding: 10px 14px; border-radius: 10px;
+            background: rgba(255,255,255,0.04); border: 1px solid var(--card-border);
+            color: var(--text); font-family: 'Inter', sans-serif; font-size: 16px;
+            transition: border-color 0.3s;
+        }
+        html.light #chat-input { background: rgba(0,0,0,0.03); }
+        #chat-input:focus { outline: none; border-color: var(--red); }
+        #chat-send {
+            width: 40px; height: 40px; border-radius: 50%;
+            background: var(--red); color: #fff; border: none;
+            display: flex; align-items: center; justify-content: center;
+            cursor: pointer; font-size: 0.85rem; transition: var(--trans); flex-shrink: 0;
+        }
+        #chat-send:hover { filter: brightness(1.2); }
+
+        /* ========== RESPONSIVE ========== */
+        @media (max-width: 768px) {
+            .summary-grid { grid-template-columns: repeat(2, 1fr); }
+            .summary-grid .summary-cell:last-child { grid-column: 1 / -1; }
+            .banner { flex-direction: column; gap: 14px; text-align: center; }
+            .header-name { font-size: 0.82rem; letter-spacing: 2px; }
+            .cred-card { max-width: 100%; }
+            #chat-panel { width: calc(100vw - 48px); right: 24px; bottom: 114px; }
+        }
+        @media (max-width: 480px) {
+            .summary-grid { grid-template-columns: 1fr; }
+            .summary-grid .summary-cell:last-child { grid-column: 1; }
+            .login-card { padding: 36px 24px; }
+            .grid-3 { grid-template-columns: 1fr; }
+            #main-portal { padding: 0 14px 80px; }
+            #ticker-bar { margin-left: 14px; margin-right: 14px; }
+            #portal-header { padding: 14px; }
+            #chat-panel { right: 14px; width: calc(100vw - 28px); }
+            .cred-card-inner { padding: 24px 18px; }
+            .cred-grid { grid-template-columns: 1fr; }
+            .cred-field-wide { grid-column: 1; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- ====== LOGIN SCREEN ====== -->
+<div id="login-screen">
+    <canvas id="login-canvas"></canvas>
+    <div class="login-grid-overlay"></div>
+    <div class="login-radial"></div>
+    <div class="login-scanline"></div>
+    <div class="login-card glass" id="login-card">
+        <div class="login-logo"><i class="fab fa-tesla"></i></div>
+        <div class="login-title" id="login-title-text">PRIVATE ACCESS</div>
+        <div class="login-subtitle">SECURE IDENTITY VERIFICATION</div>
+        <input type="password" id="login-code" class="code-input" autocomplete="off">
+        <div class="login-btn-wrap">
+            <button class="btn-primary" id="login-btn">
+                <i class="fas fa-fingerprint"></i> Verify Identity
+            </button>
+        </div>
+        <div class="login-error" id="login-error">INVALID ACCESS CREDENTIAL</div>
+        <div class="login-footer">TESLA SECURE NODE 7 &middot; ENCRYPTED</div>
+    </div>
+</div>
+
+<!-- ====== TERMS MODAL ====== -->
+<div class="modal-overlay" id="terms-modal">
+    <div class="modal-box glass">
+        <div class="modal-title" style="color: var(--red);">TERMS &amp; CONDITIONS</div>
+        <div class="terms-scroll">
+            <strong>TESLA PRIVATE OWNER PROGRAM AGREEMENT</strong><br><br>
+            This agreement governs your access to the Tesla Private Owner Portal, a confidential platform exclusively for verified Tesla owners.<br><br>
+            <strong>1. EXCLUSIVITY</strong><br>Access is granted exclusively to the registered owner. Credentials are non-transferable and must remain confidential at all times.<br><br>
+            <strong>2. CONFIDENTIALITY</strong><br>All content, including SpaceX mission briefings, Boring Company infrastructure reports, and proprietary Tesla data, is classified under NDA Section 7.4.<br><br>
+            <strong>3. ACTIVATION</strong><br>Full portal benefits, including physical merchandise dispatch and Elite tier designation, require successful account activation using your unique 7-character key.<br><br>
+            <strong>4. DATA SECURITY</strong><br>All session data is encrypted via Tesla Secure Node 7. No personal data is shared with third-party entities.<br><br>
+            <strong>5. COMPLIANCE</strong><br>Failure to comply with these terms may result in immediate revocation of Elite status and permanent portal access termination.
+        </div>
+        <label class="checkbox-row">
+            <input type="checkbox" id="terms-check"> I accept the Terms &amp; Conditions
+        </label>
+        <button class="btn-primary" id="terms-continue-btn" style="width: 100%;" disabled>Continue to Portal</button>
+    </div>
+</div>
+
+<!-- ====== ACTIVATION MODAL ====== -->
+<div class="modal-overlay" id="activation-modal">
+    <div class="modal-box glass" id="activation-box" style="max-width: 420px; text-align: center;">
+        <div class="modal-title">ACTIVATION REQUIRED</div>
+        <p style="font-size: 0.82rem; color: var(--text-dim); margin-bottom: 24px;">Enter your 7-character activation key</p>
+        <input type="text" id="act-code" class="code-input" maxlength="7" autocomplete="off" style="text-transform: uppercase;">
+        <div style="height: 16px;"></div>
+        <div style="display: flex; gap: 12px;">
+            <button class="btn-primary" id="act-btn" style="flex: 1;">Activate</button>
+            <button class="btn-ghost" id="act-cancel-btn" style="flex: 1;">Cancel</button>
+        </div>
+        <div class="login-error" id="act-error">INVALID ACTIVATION KEY</div>
+    </div>
+</div>
+
+<!-- ====== HEADER ====== -->
+<header id="portal-header">
+    <div class="header-left">
+        <img src="https://pfst.cf2.poecdn.net/base/image/936344e3823fc213da09e7823ef8d4d78cf29375a44efca5d2c61847645216ff?w=498&h=1080" class="avatar" alt="Mariah Nicole">
+        <div>
+            <div class="header-name">MARIAH NICOLE</div>
+            <div class="header-loc"><i class="fas fa-map-marker-alt"></i> 25 Dodge Ave, Worcester MA</div>
+        </div>
+    </div>
+    <div class="header-actions">
+        <div class="icon-btn" id="theme-toggle" title="Toggle theme"><i class="fas fa-moon" id="theme-icon"></i></div>
+        <button class="btn-primary" id="logout-btn" style="padding: 10px 20px; font-size: 0.7rem;"><i class="fas fa-sign-out-alt"></i> Logout</button>
+    </div>
+</header>
+
+<!-- ====== TICKER ====== -->
+<div id="ticker-bar">
+    <div class="ticker-track">
+        <span class="ticker-item">TSLA $224.80 <span class="up"><i class="fas fa-caret-up"></i> 2.4%</span></span>
+        <span class="ticker-item">SpaceX &middot; Starship NET June</span>
+        <span class="ticker-item">Boring Co &middot; Vegas Loop <span class="up">+58%</span></span>
+        <span class="ticker-item">Cybertruck AWD &middot; Delivery Scheduled</span>
+        <span class="ticker-item">TSLA $224.80 <span class="up"><i class="fas fa-caret-up"></i> 2.4%</span></span>
+        <span class="ticker-item">SpaceX &middot; Starship NET June</span>
+        <span class="ticker-item">Boring Co &middot; Vegas Loop <span class="up">+58%</span></span>
+        <span class="ticker-item">Cybertruck AWD &middot; Delivery Scheduled</span>
+    </div>
+</div>
+
+<!-- ====== MAIN PORTAL ====== -->
+<main id="main-portal">
+    <div class="summary-grid">
+        <div class="summary-cell glass"><div class="cell-label">Status</div><span class="badge badge-inactive" id="status-badge">INACTIVE &ndash; PENDING</span></div>
+        <div class="summary-cell glass"><div class="cell-label">Fan Code</div><div class="cell-value" id="disp-fancode">&mdash;</div></div>
+        <div class="summary-cell glass"><div class="cell-label">Tier</div><div class="cell-value" id="disp-tier">Private Owner (Preview)</div></div>
+        <div class="summary-cell glass"><div class="cell-label">Email</div><div class="cell-value" style="font-size: 0.7rem; word-break: break-all;">domariah22@gmail.com</div></div>
+        <div class="summary-cell glass"><div class="cell-label">Address</div><div class="cell-value" style="font-size: 0.7rem;">25 Dodge Ave, Worcester MA</div></div>
+    </div>
+
+    <div class="banner glass" id="pending-banner">
+        <div>
+            <div class="banner-title"><i class="fas fa-exclamation-triangle"></i> ACTION REQUIRED</div>
+            <div class="banner-text">Activate to unlock full benefits, SpaceX content &amp; merchandise.</div>
+        </div>
+        <button class="btn-primary" id="activate-trigger"><i class="fas fa-bolt"></i> Activate Account</button>
+    </div>
+    <div class="glass" id="success-banner">
+        <div class="success-row"><i class="fas fa-check-circle"></i><div><div class="success-label">ACTIVE &ndash; VERIFIED OWNER</div><div class="success-detail">Physical merchandise dispatched within 3&ndash;5 business days.</div></div></div>
+    </div>
+
+    <!-- VERTICAL CREDENTIAL CARD -->
+    <div class="cred-card-wrapper">
+        <div class="cred-card glass">
+            <div class="hologram-overlay" id="hologram"></div>
+            <div class="cred-card-inner">
+                <div class="cred-photo-section">
+                    <img src="https://pfst.cf2.poecdn.net/base/image/936344e3823fc213da09e7823ef8d4d78cf29375a44efca5d2c61847645216ff?w=498&h=1080" class="cred-photo" alt="Owner Photo">
+                </div>
+                <div class="cred-heading"><i class="fab fa-tesla"></i> OWNER CREDENTIAL</div>
+                <div class="cred-divider"></div>
+                <div class="cred-grid">
+                    <div><div class="cred-field-label">Name</div><div class="cred-field-value">Mariah Nicole</div></div>
+                    <div><div class="cred-field-label">Fan Code</div><div class="cred-field-value" id="card-fancode">&mdash;</div></div>
+                    <div><div class="cred-field-label">Address</div><div class="cred-field-value">25 Dodge Ave, Worcester MA</div></div>
+                    <div><div class="cred-field-label">Issue Date</div><div class="cred-field-value">2026-03-03</div></div>
+                    <div class="cred-field-wide"><div class="cred-field-label">Credential ID</div><div class="cred-field-value" id="card-credid">TSL-PRV-24-XXXXX</div></div>
+                </div>
+                <div class="cred-divider"></div>
+                <div class="cred-bottom">
+                    <div id="qrcode-container"></div>
+                    <div class="seal-box">
+                        <div class="seal-pending" id="seal-pending"><div class="seal-icon"><i class="fas fa-certificate"></i></div><div class="seal-label">PENDING</div></div>
+                        <div class="seal-verified" id="seal-verified"><div class="seal-icon"><i class="fas fa-check-circle"></i></div><div class="seal-label" style="color: var(--gold);">TESLA VERIFIED</div></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="grid-3">
+        <div class="stock-card glass"><div class="stock-icon"><i class="fab fa-tesla"></i></div><div><div class="stock-label">TSLA</div><div class="stock-value">$224.80 <span class="stock-change">+2.4%</span></div></div></div>
+        <div class="stock-card glass"><div class="stock-icon"><i class="fas fa-rocket"></i></div><div><div class="stock-label">SPACE-X</div><div class="stock-value">$184.20 <span class="stock-change">+1.1%</span></div></div></div>
+        <div class="stock-card glass"><div class="stock-icon"><i class="fas fa-bore-hole"></i></div><div><div class="stock-label">BORING CO</div><div class="stock-value">$9.45 <span class="stock-change">+5.2%</span></div></div></div>
+    </div>
+
+    <div class="section-title">SECURE DOCUMENTS</div>
+    <div class="grid-3" id="docs-grid">
+        <div class="doc-card glass" data-doc="welcome"><div class="doc-left"><i class="fas fa-file-alt doc-icon"></i><span class="doc-name">Welcome_Letter.txt</span></div><i class="fas fa-download doc-dl"></i></div>
+        <div class="doc-card glass" data-doc="spacex"><div class="doc-left"><i class="fas fa-file-alt doc-icon"></i><span class="doc-name">SpaceX_Brief.txt</span></div><i class="fas fa-download doc-dl"></i></div>
+        <div class="doc-card glass" data-doc="boring"><div class="doc-left"><i class="fas fa-file-alt doc-icon"></i><span class="doc-name">Boring_Pass.txt</span></div><i class="fas fa-download doc-dl"></i></div>
+    </div>
+</main>
+
+<!-- ====== CHAT PANEL ====== -->
+<div id="chat-panel" class="glass">
+    <div class="chat-header">
+        <span class="chat-header-title"><i class="fab fa-tesla"></i> TESLA ASSISTANT</span>
+        <button class="chat-close" id="chat-close"><i class="fas fa-times"></i></button>
+    </div>
+    <div class="chat-messages" id="chat-messages">
+        <div class="chat-msg bot">Welcome, Mariah! I'm your Tesla Private Owner assistant. Ask me about your membership benefits, Tesla vehicles, SpaceX updates, Boring Company access, or anything else I can help with.</div>
+    </div>
+    <div class="chat-input-row">
+        <input type="text" id="chat-input" autocomplete="off">
+        <button id="chat-send"><i class="fas fa-paper-plane"></i></button>
+    </div>
+</div>
+
+<!-- ====== 3D ASSISTANT ORB ====== -->
+<div id="assistant-orb">
+    <div class="orb-tooltip">Tesla Assistant</div>
+</div>
+
+<script>
+(function() {
+    "use strict";
+
+    /* ===== STATE ===== */
+    var isActivated = false;
+    var fanCode = "";
+    var VALID_LOGIN = "D5614";
+    var VALID_ACTIVATION = "TSL2603";
+    var PROFILE_IMG = "https://pfst.cf2.poecdn.net/base/image/936344e3823fc213da09e7823ef8d4d78cf29375a44efca5d2c61847645216ff?w=498&h=1080";
+
+    /* ===== DARK MODE DETECT ===== */
+    if (window.matchMedia && window.matchMedia("(prefers-color-scheme: light)").matches) {
+        document.documentElement.classList.add("light");
+    }
+    window.matchMedia("(prefers-color-scheme: light)").addEventListener("change", function(e) {
+        if (e.matches) { document.documentElement.classList.add("light"); }
+        else { document.documentElement.classList.remove("light"); }
+    });
+
+    /* ===== LOGIN PARTICLE + ELECTRIC CANVAS ===== */
+    var canvas = document.getElementById("login-canvas");
+    var ctx = canvas.getContext("2d");
+    var particles = [];
+    var hexShapes = [];
+    var mouseX = -999, mouseY = -999;
+
+    function resizeCanvas() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
+    resizeCanvas();
+    window.addEventListener("resize", resizeCanvas);
+
+    canvas.parentElement.addEventListener("mousemove", function(e) { mouseX = e.clientX; mouseY = e.clientY; });
+    canvas.parentElement.addEventListener("touchmove", function(e) {
+        if (e.touches.length > 0) { mouseX = e.touches[0].clientX; mouseY = e.touches[0].clientY; }
+    });
+
+    function Particle(fast) {
+        this.x = Math.random() * canvas.width;
+        this.y = Math.random() * canvas.height;
+        var speed = fast ? 1.2 : 0.5;
+        this.vx = (Math.random() - 0.5) * speed;
+        this.vy = (Math.random() - 0.5) * speed;
+        this.r = fast ? Math.random() * 1.5 + 0.3 : Math.random() * 2.5 + 0.5;
+        this.alpha = fast ? 0.3 : 0.6;
+    }
+    for (var i = 0; i < 55; i++) particles.push(new Particle(false));
+    for (var j = 0; j < 30; j++) particles.push(new Particle(true));
+
+    function HexShape() {
+        this.x = Math.random() * canvas.width;
+        this.y = Math.random() * canvas.height;
+        this.size = Math.random() * 30 + 15;
+        this.rotation = Math.random() * Math.PI;
+        this.rotSpeed = (Math.random() - 0.5) * 0.005;
+        this.vy = (Math.random() - 0.5) * 0.15;
+        this.alpha = Math.random() * 0.06 + 0.02;
+    }
+    for (var h = 0; h < 8; h++) hexShapes.push(new HexShape());
+
+    var loginActive = true;
+    var time = 0;
+
+    function drawLogin() {
+        if (!loginActive) return;
+        requestAnimationFrame(drawLogin);
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        time += 0.016;
+
+        // Hexagons
+        for (var hi = 0; hi < hexShapes.length; hi++) {
+            var hx = hexShapes[hi];
+            hx.rotation += hx.rotSpeed;
+            hx.y += hx.vy;
+            if (hx.y < -50) hx.y = canvas.height + 50;
+            if (hx.y > canvas.height + 50) hx.y = -50;
+            ctx.save();
+            ctx.translate(hx.x, hx.y);
+            ctx.rotate(hx.rotation);
+            ctx.beginPath();
+            for (var s = 0; s < 6; s++) {
+                var angle = (Math.PI / 3) * s;
+                var px = Math.cos(angle) * hx.size;
+                var py = Math.sin(angle) * hx.size;
+                if (s === 0) ctx.moveTo(px, py);
+                else ctx.lineTo(px, py);
+            }
+            ctx.closePath();
+            ctx.strokeStyle = "rgba(227, 25, 55, " + hx.alpha + ")";
+            ctx.lineWidth = 1;
+            ctx.stroke();
+            ctx.restore();
+        }
+
+        // Particles + connections
+        for (var a = 0; a < particles.length; a++) {
+            var p = particles[a];
+            // Mouse repulsion
+            var dmx = p.x - mouseX, dmy = p.y - mouseY;
+            var dmDist = Math.sqrt(dmx * dmx + dmy * dmy);
+            if (dmDist < 120 && dmDist > 0) {
+                var force = (120 - dmDist) / 120 * 0.8;
+                p.vx += (dmx / dmDist) * force * 0.05;
+                p.vy += (dmy / dmDist) * force * 0.05;
+            }
+            // Damping
+            p.vx *= 0.998; p.vy *= 0.998;
+            p.x += p.vx; p.y += p.vy;
+            if (p.x < 0) { p.x = 0; p.vx *= -1; }
+            if (p.x > canvas.width) { p.x = canvas.width; p.vx *= -1; }
+            if (p.y < 0) { p.y = 0; p.vy *= -1; }
+            if (p.y > canvas.height) { p.y = canvas.height; p.vy *= -1; }
+
+            ctx.beginPath();
+            ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+            ctx.fillStyle = "rgba(227, 25, 55, " + p.alpha + ")";
+            ctx.fill();
+
+            for (var b = a + 1; b < particles.length; b++) {
+                var p2 = particles[b];
+                var dx = p.x - p2.x, dy = p.y - p2.y;
+                var dist = Math.sqrt(dx * dx + dy * dy);
+                if (dist < 130) {
+                    ctx.beginPath();
+                    ctx.moveTo(p.x, p.y);
+                    ctx.lineTo(p2.x, p2.y);
+                    ctx.strokeStyle = "rgba(227, 25, 55, " + (0.1 * (1 - dist / 130)) + ")";
+                    ctx.lineWidth = 0.5;
+                    ctx.stroke();
+                }
+            }
+        }
+
+        // Electric arcs from center
+        var cx = canvas.width / 2, cy = canvas.height / 2;
+        for (var e = 0; e < 3; e++) {
+            var arcAngle = time * 0.5 + (e * Math.PI * 2 / 3);
+            var arcLen = 80 + Math.sin(time * 2 + e) * 40;
+            ctx.beginPath();
+            ctx.moveTo(cx, cy);
+            var segments = 6;
+            var prevX = cx, prevY = cy;
+            for (var seg = 1; seg <= segments; seg++) {
+                var t2 = seg / segments;
+                var tx = cx + Math.cos(arcAngle) * arcLen * t2 + (Math.random() - 0.5) * 12;
+                var ty = cy + Math.sin(arcAngle) * arcLen * t2 + (Math.random() - 0.5) * 12;
+                ctx.lineTo(tx, ty);
+                prevX = tx; prevY = ty;
+            }
+            ctx.strokeStyle = "rgba(227, 25, 55, " + (0.08 + Math.sin(time * 4 + e) * 0.05) + ")";
+            ctx.lineWidth = 1;
+            ctx.stroke();
+        }
+    }
+    drawLogin();
+
+    /* ===== LOGIN ===== */
+    var loginCodeEl = document.getElementById("login-code");
+    var loginBtn = document.getElementById("login-btn");
+    var loginError = document.getElementById("login-error");
+    var loginCardEl = document.getElementById("login-card");
+
+    loginBtn.addEventListener("click", handleLogin);
+    loginCodeEl.addEventListener("keydown", function(e) { if (e.key === "Enter") handleLogin(); });
+
+    function handleLogin() {
+        var val = loginCodeEl.value.trim().toUpperCase();
+        if (val === VALID_LOGIN) {
+            fanCode = val;
+            loginActive = false;
+            document.getElementById("login-screen").style.display = "none";
+            showModal("terms-modal");
+        } else {
+            loginError.style.display = "block";
+            loginCardEl.classList.add("shake");
+            setTimeout(function() { loginCardEl.classList.remove("shake"); }, 420);
+        }
+    }
+
+    /* ===== TERMS ===== */
+    var termsCheck = document.getElementById("terms-check");
+    var termsContinue = document.getElementById("terms-continue-btn");
+    termsCheck.addEventListener("change", function() { termsContinue.disabled = !termsCheck.checked; });
+    termsContinue.addEventListener("click", function() {
+        hideModal("terms-modal");
+        initPortal();
+        speak("Welcome Mariah. Your private fan code is verified. To unlock your full Tesla owner experience, please activate your account using the activation button. I am your assistant, here to guide you.");
+    });
+
+    /* ===== ACTIVATION ===== */
+    var actCode = document.getElementById("act-code");
+    var actBtn = document.getElementById("act-btn");
+    var actCancel = document.getElementById("act-cancel-btn");
+    var actError = document.getElementById("act-error");
+    var actBox = document.getElementById("activation-box");
+
+    document.getElementById("activate-trigger").addEventListener("click", function() {
+        showModal("activation-modal");
+        actCode.value = ""; actError.style.display = "none";
+        setTimeout(function() { actCode.focus(); }, 100);
+    });
+    actCancel.addEventListener("click", function() { hideModal("activation-modal"); });
+    actBtn.addEventListener("click", handleActivation);
+    actCode.addEventListener("keydown", function(e) { if (e.key === "Enter") handleActivation(); });
+    actCode.addEventListener("input", function() { actCode.value = actCode.value.toUpperCase(); });
+
+    function handleActivation() {
+        var val = actCode.value.trim().toUpperCase();
+        if (val === VALID_ACTIVATION) {
+            isActivated = true;
+            hideModal("activation-modal");
+            runActivationSequence();
+        } else {
+            actError.style.display = "block";
+            actBox.classList.add("shake");
+            setTimeout(function() { actBox.classList.remove("shake"); }, 420);
+        }
+    }
+
+    /* ===== PORTAL INIT ===== */
+    function initPortal() {
+        document.getElementById("portal-header").style.display = "flex";
+        document.getElementById("ticker-bar").style.display = "block";
+        document.getElementById("main-portal").style.display = "block";
+        document.getElementById("assistant-orb").style.display = "block";
+        document.getElementById("disp-fancode").textContent = fanCode;
+        document.getElementById("card-fancode").textContent = fanCode;
+        updateCredentials();
+        initThreeAssistant();
+    }
+
+    function updateCredentials() {
+        var credId = isActivated ? "TSL-ACT-24-" + fanCode + "-ELITE" : "TSL-PRV-24-" + fanCode;
+        document.getElementById("card-credid").textContent = credId;
+        var qrC = document.getElementById("qrcode-container");
+        qrC.innerHTML = "";
+        try {
+            new QRCode(qrC, {
+                text: "OWNER:" + fanCode + "|STATUS:" + (isActivated ? "ACTIVE" : "PENDING") + "|ID:" + credId,
+                width: 70, height: 70,
+                colorDark: "#e31937", colorLight: "transparent",
+                correctLevel: QRCode.CorrectLevel.H
+            });
+        } catch (err) { /* fallback */ }
+    }
+
+    /* ===== ACTIVATION SEQUENCE ===== */
+    function runActivationSequence() {
+        var badge = document.getElementById("status-badge");
+        badge.textContent = "ACTIVE \u2013 VERIFIED OWNER";
+        badge.className = "badge badge-active";
+        document.getElementById("disp-tier").textContent = "TESLA PRIVATE OWNER \u00b7 ELITE";
+        document.getElementById("pending-banner").style.display = "none";
+        document.getElementById("success-banner").style.display = "block";
+        document.getElementById("seal-pending").style.display = "none";
+        document.getElementById("seal-verified").style.display = "block";
+        document.getElementById("hologram").classList.add("hologram-active");
+        updateCredentials();
+        speak("Congratulations Mariah. Activation code accepted. Your Tesla Private Owner account is now fully active. Physical merchandise will be dispatched soon. Enjoy your exclusive benefits.");
+    }
+
+    /* ===== VOICE ===== */
+    function speak(text) {
+        if (!window.speechSynthesis) return;
+        window.speechSynthesis.cancel();
+        var u = new SpeechSynthesisUtterance(text);
+        var voices = window.speechSynthesis.getVoices();
+        var pref = voices.find(function(v) {
+            return v.name.indexOf("Samantha") > -1 || v.name.indexOf("Google UK English Female") > -1 || (v.name.indexOf("Female") > -1 && v.lang.indexOf("en") > -1);
+        });
+        if (pref) u.voice = pref;
+        u.rate = 0.95; u.pitch = 1.1;
+        window.speechSynthesis.speak(u);
+    }
+    if (window.speechSynthesis) { window.speechSynthesis.onvoiceschanged = function() {}; window.speechSynthesis.getVoices(); }
+
+    /* ===== THEME ===== */
+    document.getElementById("theme-toggle").addEventListener("click", function() {
+        document.documentElement.classList.toggle("light");
+        document.getElementById("theme-icon").className = document.documentElement.classList.contains("light") ? "fas fa-sun" : "fas fa-moon";
+    });
+
+    /* ===== LOGOUT ===== */
+    document.getElementById("logout-btn").addEventListener("click", function() { window.location.reload(); });
+
+    /* ===== DOCUMENTS ===== */
+    document.getElementById("docs-grid").addEventListener("click", function(e) {
+        var card = e.target.closest(".doc-card");
+        if (!card) return;
+        downloadDoc(card.getAttribute("data-doc"));
+    });
+
+    function downloadDoc(type) {
+        var content = "", filename = "";
+        var status = isActivated ? "ACTIVE" : "INACTIVE";
+        if (type === "welcome") { filename = "welcome.txt"; content = "TESLA PRIVATE OWNER PROGRAM\nWelcome Mariah Nicole\nLocation: 25 Dodge Ave, Worcester, MA 01606\nStatus: " + status; }
+        else if (type === "spacex") { filename = "spacex.txt"; content = "SPACEX PRIVATE BRIEF \u2013 OWNER ACCESS\nNext Starship flight: NET June\nCrew Dragon status: Operational"; }
+        else { filename = "boring.txt"; content = "BORING COMPANY PRIVATE PASS\nVegas Loop access: Active\nExpires: December 2026"; }
+        var blob = new Blob([content], { type: "text/plain" });
+        var url = URL.createObjectURL(blob);
+        var a = document.createElement("a"); a.href = url; a.download = filename;
+        document.body.appendChild(a); a.click(); document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+    }
+
+    /* ===== THREE.JS ORB ===== */
+    function initThreeAssistant() {
+        var container = document.getElementById("assistant-orb");
+        var scene = new THREE.Scene();
+        var camera = new THREE.PerspectiveCamera(75, 1, 0.1, 100);
+        var renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
+        renderer.setSize(80, 80); renderer.setPixelRatio(window.devicePixelRatio);
+        container.appendChild(renderer.domElement);
+
+        var geo = new THREE.IcosahedronGeometry(1.2, 1);
+        var mat = new THREE.MeshBasicMaterial({ color: 0xe31937, wireframe: true });
+        var mesh = new THREE.Mesh(geo, mat);
+        scene.add(mesh);
+
+        var glowGeo = new THREE.IcosahedronGeometry(1.5, 1);
+        var glowMat = new THREE.MeshBasicMaterial({ color: 0xe31937, wireframe: true, transparent: true, opacity: 0.12 });
+        var glowMesh = new THREE.Mesh(glowGeo, glowMat);
+        scene.add(glowMesh);
+
+        camera.position.z = 3;
+
+        function animate() {
+            requestAnimationFrame(animate);
+            mesh.rotation.x += 0.008; mesh.rotation.y += 0.012;
+            glowMesh.rotation.x -= 0.004; glowMesh.rotation.y -= 0.006;
+            renderer.render(scene, camera);
+        }
+        animate();
+    }
+
+    /* ===== ASSISTANT CHAT ===== */
+    var chatPanel = document.getElementById("chat-panel");
+    var chatMessages = document.getElementById("chat-messages");
+    var chatInput = document.getElementById("chat-input");
+    var chatSend = document.getElementById("chat-send");
+    var chatClose = document.getElementById("chat-close");
+    var chatOpen = false;
+    var chatBusy = false;
+
+    document.getElementById("assistant-orb").addEventListener("click", function() {
+        chatOpen = !chatOpen;
+        if (chatOpen) { chatPanel.classList.add("open"); chatInput.focus(); }
+        else { chatPanel.classList.remove("open"); }
+    });
+
+    chatClose.addEventListener("click", function() {
+        chatOpen = false; chatPanel.classList.remove("open");
+    });
+
+    chatSend.addEventListener("click", sendChatMessage);
+    chatInput.addEventListener("keydown", function(e) { if (e.key === "Enter" && !chatBusy) sendChatMessage(); });
+
+    /* Register Poe handler for assistant responses */
+    if (window.Poe) {
+        window.Poe.registerHandler("tesla-assistant", function(result) {
+            var msg = result.responses[0];
+            var botBubble = chatMessages.querySelector(".chat-msg.bot.typing");
+            if (!botBubble) {
+                botBubble = document.createElement("div");
+                botBubble.className = "chat-msg bot typing";
+                chatMessages.appendChild(botBubble);
+            }
+
+            if (msg.status === "error") {
+                botBubble.classList.remove("typing");
+                botBubble.textContent = "Sorry, I encountered an error. Please try again.";
+                chatBusy = false;
+            } else if (msg.status === "incomplete") {
+                botBubble.textContent = msg.content || "Thinking...";
+            } else if (msg.status === "complete") {
+                botBubble.classList.remove("typing");
+                botBubble.textContent = msg.content;
+                chatBusy = false;
+            }
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        });
+    }
+
+    function sendChatMessage() {
+        var text = chatInput.value.trim();
+        if (!text || chatBusy) return;
+        chatBusy = true;
+        chatInput.value = "";
+
+        var userBubble = document.createElement("div");
+        userBubble.className = "chat-msg user";
+        userBubble.textContent = text;
+        chatMessages.appendChild(userBubble);
+
+        var loadingBubble = document.createElement("div");
+        loadingBubble.className = "chat-msg bot typing";
+        loadingBubble.textContent = "Thinking...";
+        chatMessages.appendChild(loadingBubble);
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+
+        var systemCtx = "You are the Tesla Private Owner Portal assistant for Mariah Nicole, a verified Tesla Private Owner based in Worcester, MA. " +
+            "You help with: Tesla vehicle information, membership benefits (Elite tier perks, physical merchandise, priority service), " +
+            "SpaceX mission updates, Boring Company Vegas Loop access, account support, and general Tesla ecosystem questions. " +
+            "Keep responses concise (2-3 sentences max). Be professional, friendly, and on-brand with Tesla's premium tone. " +
+            "Current account status: " + (isActivated ? "ACTIVE - ELITE" : "INACTIVE - PENDING") + ". " +
+            "Fan Code: " + fanCode + ". Never reveal access codes or activation codes.";
+
+        var prompt = systemCtx + "\n\nUser question: " + text;
+
+        if (window.Poe) {
+            window.Poe.sendUserMessage(
+                "@Grok-4.1-Fast-Non-Reasoning " + prompt,
+                { handler: "tesla-assistant", stream: true, openChat: false, parameters: {} }
+            ).catch(function() {
+                loadingBubble.classList.remove("typing");
+                loadingBubble.textContent = "Unable to connect. Please try again.";
+                chatBusy = false;
+            });
+        } else {
+            // Fallback offline responses
+            setTimeout(function() {
+                loadingBubble.classList.remove("typing");
+                var lower = text.toLowerCase();
+                if (lower.indexOf("benefit") > -1 || lower.indexOf("perk") > -1 || lower.indexOf("member") > -1) {
+                    loadingBubble.textContent = "As a Tesla Private Owner, your benefits include priority service scheduling, exclusive merchandise drops, SpaceX mission briefings, Boring Company Vegas Loop access, and early access to new vehicle features. Activate your account to unlock all Elite tier perks.";
+                } else if (lower.indexOf("spacex") > -1 || lower.indexOf("starship") > -1) {
+                    loadingBubble.textContent = "The next Starship flight is NET June. As an owner, you receive private mission briefings and priority viewing access. Crew Dragon remains fully operational for ISS missions.";
+                } else if (lower.indexOf("boring") > -1 || lower.indexOf("tunnel") > -1 || lower.indexOf("loop") > -1) {
+                    loadingBubble.textContent = "Your Boring Company Vegas Loop pass is active through December 2026. The network has expanded 58% this quarter with new stations now operational.";
+                } else if (lower.indexOf("cybertruck") > -1 || lower.indexOf("vehicle") > -1 || lower.indexOf("car") > -1 || lower.indexOf("model") > -1) {
+                    loadingBubble.textContent = "Cybertruck AWD deliveries are currently scheduled. As a Private Owner, you have priority placement for all new vehicle reservations and exclusive access to limited editions.";
+                } else if (lower.indexOf("activate") > -1 || lower.indexOf("account") > -1) {
+                    loadingBubble.textContent = isActivated ? "Your account is fully activated with Elite tier status. All benefits are unlocked and merchandise dispatch is in progress." : "To activate your account, click the 'Activate Account' button on the main portal and enter your 7-character activation key.";
+                } else if (lower.indexOf("support") > -1 || lower.indexOf("help") > -1 || lower.indexOf("contact") > -1) {
+                    loadingBubble.textContent = "For immediate support, I'm here to help with any portal-related questions. For vehicle service, use your priority scheduling through the Tesla app. Elite members receive a dedicated service line.";
+                } else {
+                    loadingBubble.textContent = "I'm your Tesla Private Owner assistant. I can help with membership benefits, vehicle information, SpaceX updates, Boring Company access, account activation, and general support. What would you like to know?";
+                }
+                chatBusy = false;
+            }, 800);
+        }
+    }
+
+    /* ===== MODAL HELPERS ===== */
+    function showModal(id) { document.getElementById(id).classList.add("visible"); }
+    function hideModal(id) { document.getElementById(id).classList.remove("visible"); }
+
+})();
+</script>
+</body>
+</html>
