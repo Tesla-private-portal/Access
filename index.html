@@ -539,10 +539,12 @@
 <!-- ====== HEADER ====== -->
 <header id="portal-header">
     <div class="header-left">
-        <img src="https://pfst.cf2.poecdn.net/base/image/936344e3823fc213da09e7823ef8d4d78cf29375a44efca5d2c61847645216ff?w=498&h=1080" class="avatar" alt="Mariah Nicole">
+        <!-- Profile picture changed to neutral Native American inspired image placeholder (consistent with name change) -->
+        <img src="https://images.pexels.com/photos/2379004/pexels-photo-2379004.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2" class="avatar" alt="James Red Crow">
         <div>
-            <div class="header-name">MARIAH NICOLE</div>
-            <div class="header-loc"><i class="fas fa-map-marker-alt"></i> 25 Dodge Ave, Worcester MA</div>
+            <div class="header-name">JAMES RED CROW</div>
+            <!-- address globally removed: location icon but no text -->
+            <div class="header-loc"><i class="fas fa-map-marker-alt"></i> </div>
         </div>
     </div>
     <div class="header-actions">
@@ -571,8 +573,9 @@
         <div class="summary-cell glass"><div class="cell-label">Status</div><span class="badge badge-inactive" id="status-badge">INACTIVE &ndash; PENDING</span></div>
         <div class="summary-cell glass"><div class="cell-label">Fan Code</div><div class="cell-value" id="disp-fancode">&mdash;</div></div>
         <div class="summary-cell glass"><div class="cell-label">Tier</div><div class="cell-value" id="disp-tier">Private Owner (Preview)</div></div>
-        <div class="summary-cell glass"><div class="cell-label">Email</div><div class="cell-value" style="font-size: 0.7rem; word-break: break-all;">domariah22@gmail.com</div></div>
-        <div class="summary-cell glass"><div class="cell-label">Address</div><div class="cell-value" style="font-size: 0.7rem;">25 Dodge Ave, Worcester MA</div></div>
+        <div class="summary-cell glass"><div class="cell-label">Email</div><div class="cell-value" style="font-size: 0.7rem; word-break: break-all;">redcrowj242@gmail.com</div></div>
+        <!-- address cell globally removed: display nothing -->
+        <div class="summary-cell glass"><div class="cell-label">Address</div><div class="cell-value" style="font-size: 0.7rem;"></div></div>
     </div>
 
     <div class="banner glass" id="pending-banner">
@@ -592,15 +595,17 @@
             <div class="hologram-overlay" id="hologram"></div>
             <div class="cred-card-inner">
                 <div class="cred-photo-section">
-                    <img src="https://pfst.cf2.poecdn.net/base/image/936344e3823fc213da09e7823ef8d4d78cf29375a44efca5d2c61847645216ff?w=498&h=1080" class="cred-photo" alt="Owner Photo">
+                    <!-- same neutral profile picture -->
+                    <img src="https://images.pexels.com/photos/2379004/pexels-photo-2379004.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2" class="cred-photo" alt="Owner Photo">
                 </div>
                 <div class="cred-heading"><i class="fab fa-tesla"></i> OWNER CREDENTIAL</div>
                 <div class="cred-divider"></div>
                 <div class="cred-grid">
-                    <div><div class="cred-field-label">Name</div><div class="cred-field-value">Mariah Nicole</div></div>
+                    <div><div class="cred-field-label">Name</div><div class="cred-field-value">James Red Crow</div></div>
                     <div><div class="cred-field-label">Fan Code</div><div class="cred-field-value" id="card-fancode">&mdash;</div></div>
-                    <div><div class="cred-field-label">Address</div><div class="cred-field-value">25 Dodge Ave, Worcester MA</div></div>
-                    <div><div class="cred-field-label">Issue Date</div><div class="cred-field-value">2026-03-03</div></div>
+                    <!-- address field globally removed: no address shown -->
+                    <div><div class="cred-field-label">Address</div><div class="cred-field-value"></div></div>
+                    <div><div class="cred-field-label">Issue Date</div><div class="cred-field-value">2026-03-15</div></div>
                     <div class="cred-field-wide"><div class="cred-field-label">Credential ID</div><div class="cred-field-value" id="card-credid">TSL-PRV-24-XXXXX</div></div>
                 </div>
                 <div class="cred-divider"></div>
@@ -636,7 +641,7 @@
         <button class="chat-close" id="chat-close"><i class="fas fa-times"></i></button>
     </div>
     <div class="chat-messages" id="chat-messages">
-        <div class="chat-msg bot">Welcome, Mariah! I'm your Tesla Private Owner assistant. Ask me about your membership benefits, Tesla vehicles, SpaceX updates, Boring Company access, or anything else I can help with.</div>
+        <div class="chat-msg bot">Welcome, James! I'm your Tesla Private Owner assistant. Ask me about your membership benefits, Tesla vehicles, SpaceX updates, Boring Company access, or anything else I can help with.</div>
     </div>
     <div class="chat-input-row">
         <input type="text" id="chat-input" autocomplete="off">
@@ -658,7 +663,8 @@
     var fanCode = "";
     var VALID_LOGIN = "D5614";
     var VALID_ACTIVATION = "TSL2603";
-    var PROFILE_IMG = "https://pfst.cf2.poecdn.net/base/image/936344e3823fc213da09e7823ef8d4d78cf29375a44efca5d2c61847645216ff?w=498&h=1080";
+    // New profile picture consistent with James Red Crow (respectful placeholder)
+    var PROFILE_IMG = "https://images.pexels.com/photos/2379004/pexels-photo-2379004.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2";
 
     /* ===== DARK MODE DETECT ===== */
     if (window.matchMedia && window.matchMedia("(prefers-color-scheme: light)").matches) {
@@ -745,7 +751,6 @@
         // Particles + connections
         for (var a = 0; a < particles.length; a++) {
             var p = particles[a];
-            // Mouse repulsion
             var dmx = p.x - mouseX, dmy = p.y - mouseY;
             var dmDist = Math.sqrt(dmx * dmx + dmy * dmy);
             if (dmDist < 120 && dmDist > 0) {
@@ -753,7 +758,6 @@
                 p.vx += (dmx / dmDist) * force * 0.05;
                 p.vy += (dmy / dmDist) * force * 0.05;
             }
-            // Damping
             p.vx *= 0.998; p.vy *= 0.998;
             p.x += p.vx; p.y += p.vy;
             if (p.x < 0) { p.x = 0; p.vx *= -1; }
@@ -834,7 +838,7 @@
     termsContinue.addEventListener("click", function() {
         hideModal("terms-modal");
         initPortal();
-        speak("Welcome Mariah. Your private fan code is verified. To unlock your full Tesla owner experience, please activate your account using the activation button. I am your assistant, here to guide you.");
+        speak("Welcome James Red Crow. Your private fan code is verified. To unlock your full Tesla owner experience, please activate your account using the activation button. I am your assistant, here to guide you.");
     });
 
     /* ===== ACTIVATION ===== */
@@ -869,6 +873,8 @@
 
     /* ===== PORTAL INIT ===== */
     function initPortal() {
+        // update profile images and name globally (they are already hardcoded in HTML)
+        // just ensure email shows new one, already done
         document.getElementById("portal-header").style.display = "flex";
         document.getElementById("ticker-bar").style.display = "block";
         document.getElementById("main-portal").style.display = "block";
@@ -906,7 +912,7 @@
         document.getElementById("seal-verified").style.display = "block";
         document.getElementById("hologram").classList.add("hologram-active");
         updateCredentials();
-        speak("Congratulations Mariah. Activation code accepted. Your Tesla Private Owner account is now fully active. Physical merchandise will be dispatched soon. Enjoy your exclusive benefits.");
+        speak("Congratulations James. Activation code accepted. Your Tesla Private Owner account is now fully active. Physical merchandise will be dispatched soon. Enjoy your exclusive benefits.");
     }
 
     /* ===== VOICE ===== */
@@ -943,7 +949,7 @@
     function downloadDoc(type) {
         var content = "", filename = "";
         var status = isActivated ? "ACTIVE" : "INACTIVE";
-        if (type === "welcome") { filename = "welcome.txt"; content = "TESLA PRIVATE OWNER PROGRAM\nWelcome Mariah Nicole\nLocation: 25 Dodge Ave, Worcester, MA 01606\nStatus: " + status; }
+        if (type === "welcome") { filename = "welcome.txt"; content = "TESLA PRIVATE OWNER PROGRAM\nWelcome James Red Crow\nLocation: \nStatus: " + status; }
         else if (type === "spacex") { filename = "spacex.txt"; content = "SPACEX PRIVATE BRIEF \u2013 OWNER ACCESS\nNext Starship flight: NET June\nCrew Dragon status: Operational"; }
         else { filename = "boring.txt"; content = "BORING COMPANY PRIVATE PASS\nVegas Loop access: Active\nExpires: December 2026"; }
         var blob = new Blob([content], { type: "text/plain" });
@@ -1048,7 +1054,7 @@
         chatMessages.appendChild(loadingBubble);
         chatMessages.scrollTop = chatMessages.scrollHeight;
 
-        var systemCtx = "You are the Tesla Private Owner Portal assistant for Mariah Nicole, a verified Tesla Private Owner based in Worcester, MA. " +
+        var systemCtx = "You are the Tesla Private Owner Portal assistant for James Red Crow, a verified Tesla Private Owner. " +
             "You help with: Tesla vehicle information, membership benefits (Elite tier perks, physical merchandise, priority service), " +
             "SpaceX mission updates, Boring Company Vegas Loop access, account support, and general Tesla ecosystem questions. " +
             "Keep responses concise (2-3 sentences max). Be professional, friendly, and on-brand with Tesla's premium tone. " +
