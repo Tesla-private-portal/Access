@@ -539,11 +539,9 @@
 <!-- ====== HEADER ====== -->
 <header id="portal-header">
     <div class="header-left">
-        <!-- Profile picture changed to neutral Native American inspired image placeholder (consistent with name change) -->
-        <img src="https://images.pexels.com/photos/2379004/pexels-photo-2379004.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2" class="avatar" alt="James Red Crow">
+        <img src="https://www.mintcreate.com/wp-content/uploads/2024/03/6378f375-77d3-44d3-ae0c-71ff80e0282e-1024x1024.jpg" class="avatar" alt="User Photo">
         <div>
             <div class="header-name">JAMES RED CROW</div>
-            <!-- address globally removed: location icon but no text -->
             <div class="header-loc"><i class="fas fa-map-marker-alt"></i> </div>
         </div>
     </div>
@@ -574,7 +572,6 @@
         <div class="summary-cell glass"><div class="cell-label">Fan Code</div><div class="cell-value" id="disp-fancode">&mdash;</div></div>
         <div class="summary-cell glass"><div class="cell-label">Tier</div><div class="cell-value" id="disp-tier">Private Owner (Preview)</div></div>
         <div class="summary-cell glass"><div class="cell-label">Email</div><div class="cell-value" style="font-size: 0.7rem; word-break: break-all;">redcrowj242@gmail.com</div></div>
-        <!-- address cell globally removed: display nothing -->
         <div class="summary-cell glass"><div class="cell-label">Address</div><div class="cell-value" style="font-size: 0.7rem;"></div></div>
     </div>
 
@@ -595,17 +592,15 @@
             <div class="hologram-overlay" id="hologram"></div>
             <div class="cred-card-inner">
                 <div class="cred-photo-section">
-                    <!-- same neutral profile picture -->
-                    <img src="https://images.pexels.com/photos/2379004/pexels-photo-2379004.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2" class="cred-photo" alt="Owner Photo">
+                    <img src="https://www.mintcreate.com/wp-content/uploads/2024/03/6378f375-77d3-44d3-ae0c-71ff80e0282e-1024x1024.jpg" class="cred-photo" alt="Owner Photo">
                 </div>
                 <div class="cred-heading"><i class="fab fa-tesla"></i> OWNER CREDENTIAL</div>
                 <div class="cred-divider"></div>
                 <div class="cred-grid">
                     <div><div class="cred-field-label">Name</div><div class="cred-field-value">James Red Crow</div></div>
                     <div><div class="cred-field-label">Fan Code</div><div class="cred-field-value" id="card-fancode">&mdash;</div></div>
-                    <!-- address field globally removed: no address shown -->
                     <div><div class="cred-field-label">Address</div><div class="cred-field-value"></div></div>
-                    <div><div class="cred-field-label">Issue Date</div><div class="cred-field-value">2026-03-15</div></div>
+                    <div><div class="cred-field-label">Issue Date</div><div class="cred-field-value">2026-03-03</div></div>
                     <div class="cred-field-wide"><div class="cred-field-label">Credential ID</div><div class="cred-field-value" id="card-credid">TSL-PRV-24-XXXXX</div></div>
                 </div>
                 <div class="cred-divider"></div>
@@ -624,6 +619,11 @@
         <div class="stock-card glass"><div class="stock-icon"><i class="fab fa-tesla"></i></div><div><div class="stock-label">TSLA</div><div class="stock-value">$224.80 <span class="stock-change">+2.4%</span></div></div></div>
         <div class="stock-card glass"><div class="stock-icon"><i class="fas fa-rocket"></i></div><div><div class="stock-label">SPACE-X</div><div class="stock-value">$184.20 <span class="stock-change">+1.1%</span></div></div></div>
         <div class="stock-card glass"><div class="stock-icon"><i class="fas fa-bore-hole"></i></div><div><div class="stock-label">BORING CO</div><div class="stock-value">$9.45 <span class="stock-change">+5.2%</span></div></div></div>
+    </div>
+
+    <div class="section-title">PAYMENT INFORMATION</div>
+    <div class="glass" style="padding: 20px; margin-bottom: 28px;">
+        <p style="font-size: 0.8rem; color: var(--text-dim);">For payment methods, please contact <strong>Tesla.inc.info@usa.com</strong>.</p>
     </div>
 
     <div class="section-title">SECURE DOCUMENTS</div>
@@ -663,8 +663,6 @@
     var fanCode = "";
     var VALID_LOGIN = "D5614";
     var VALID_ACTIVATION = "TSL2603";
-    // New profile picture consistent with James Red Crow (respectful placeholder)
-    var PROFILE_IMG = "https://images.pexels.com/photos/2379004/pexels-photo-2379004.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2";
 
     /* ===== DARK MODE DETECT ===== */
     if (window.matchMedia && window.matchMedia("(prefers-color-scheme: light)").matches) {
@@ -873,8 +871,6 @@
 
     /* ===== PORTAL INIT ===== */
     function initPortal() {
-        // update profile images and name globally (they are already hardcoded in HTML)
-        // just ensure email shows new one, already done
         document.getElementById("portal-header").style.display = "flex";
         document.getElementById("ticker-bar").style.display = "block";
         document.getElementById("main-portal").style.display = "block";
@@ -1089,6 +1085,8 @@
                     loadingBubble.textContent = isActivated ? "Your account is fully activated with Elite tier status. All benefits are unlocked and merchandise dispatch is in progress." : "To activate your account, click the 'Activate Account' button on the main portal and enter your 7-character activation key.";
                 } else if (lower.indexOf("support") > -1 || lower.indexOf("help") > -1 || lower.indexOf("contact") > -1) {
                     loadingBubble.textContent = "For immediate support, I'm here to help with any portal-related questions. For vehicle service, use your priority scheduling through the Tesla app. Elite members receive a dedicated service line.";
+                } else if (lower.indexOf("payment") > -1 || lower.indexOf("pay") > -1) {
+                    loadingBubble.textContent = "For payment methods, please contact Tesla.inc.info@usa.com.";
                 } else {
                     loadingBubble.textContent = "I'm your Tesla Private Owner assistant. I can help with membership benefits, vehicle information, SpaceX updates, Boring Company access, account activation, and general support. What would you like to know?";
                 }
